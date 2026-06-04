@@ -311,7 +311,22 @@
         }
 
         // 起動
-        window.onload = initMap;
-    </script>
-</body>
-</html>
+       // 修正前
+// window.onload = initMap;
+
+// 修正後：Firebaseのエラーがあっても、地図とGPSを強制的に動かす
+window.onload = function() {
+    try {
+        initMap();
+    } catch (e) {
+        console.error("Firebaseの設定が未完了ですが、地図とGPSを強制起動します:", e);
+        // Firebaseがエラーでも、地図の初期化とGPSの追跡だけは実行する
+        map = L.map('map', { zoomControl: false }).setView([35.681236, 139.767125], 14);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/raspberry/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        startTracking(); // GPS起動
+    }
+}; 
